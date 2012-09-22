@@ -83,6 +83,17 @@ Pcap.prototype.open = function (live, device, filter, buffer_size, pcap_output_f
     };
     this.readWatcher.set(this.fd, true, false);
     this.readWatcher.start();
+ 
+    // on smartos, readWatcher does not work on the fd that you get out of pcap
+    // it's always 8 for some reason, so we set a timer to invoce read directly.
+    // TODO: dig a bit deeper and figure out if this is a libuv bug
+
+    if (require('os').platform() === 'sunos') {
+
+console.log('monkey');
+      setInterval(this.readWatcher.callback, 100);
+    }
+
 };
 
 Pcap.prototype.close = function () {
